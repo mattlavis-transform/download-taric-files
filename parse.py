@@ -1,10 +1,9 @@
 import sys
 import datetime
-from application import application
+import classes.globals as g
 
 
 if __name__ == "__main__":
-    app = application()
     file_from = 1
     file_to = 252
 
@@ -16,5 +15,4 @@ if __name__ == "__main__":
         now = datetime.datetime.now()
         year = now.year
 
-    print(year)
-    app.download(year, file_from, file_to)
+    g.app.parse(year, file_from, file_to)

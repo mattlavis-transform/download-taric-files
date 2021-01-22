@@ -19,7 +19,6 @@
   - toml==0.10.2
   - urllib3==1.26.2
 
-
   via `pip3 install -r requirements.txt`
 
 

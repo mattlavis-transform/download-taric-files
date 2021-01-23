@@ -15,17 +15,3 @@ class DutyExpression(object):
         # Set operation types and print load message to screen
         operation = g.app.get_loading_message(update_type, "duty expression", duty_expression_id)
 
-        # Load data
-        cur = g.app.conn.cursor()
-        try:
-            cur.execute("""INSERT INTO duty_expressions_oplog (duty_expression_id, validity_start_date,
-            validity_end_date, duty_amount_applicability_code, measurement_unit_applicability_code, monetary_unit_applicability_code,
-            operation, operation_date)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
-            (duty_expression_id, validity_start_date, validity_end_date,
-            duty_amount_applicability_code, measurement_unit_applicability_code, monetary_unit_applicability_code,
-            operation, operation_date))
-            g.app.conn.commit()
-        except:
-            g.data_file.record_business_rule_violation("DB", "DB failure", operation, transaction_id, message_id, record_code, sub_record_code, duty_expression_id)
-        cur.close()

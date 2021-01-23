@@ -14,14 +14,3 @@ class MeasureConditionCode(object):
         # Set operation types and print load message to screen
         operation = g.app.get_loading_message(update_type, "measure condition", condition_code)
 
-        # Load data
-        cur = g.app.conn.cursor()
-        try:
-            cur.execute("""INSERT INTO measure_condition_codes_oplog (condition_code, validity_start_date,
-            validity_end_date, operation, operation_date)
-            VALUES (%s, %s, %s, %s, %s)""",
-            (condition_code, validity_start_date, validity_end_date, operation, operation_date))
-            g.app.conn.commit()
-        except:
-            g.data_file.record_business_rule_violation("DB", "DB failure", operation, transaction_id, message_id, record_code, sub_record_code, condition_code)
-        cur.close()

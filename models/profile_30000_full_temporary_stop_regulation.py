@@ -24,27 +24,3 @@ class FullTemporaryStopRegulation(object):
         # Set operation types and print load message to screen
         operation = g.app.get_loading_message(update_type, "full temporary stop regulation", full_temporary_stop_regulation_id)
 
-        # Load data
-        cur = g.app.conn.cursor()
-        try:
-            cur.execute("""INSERT INTO full_temporary_stop_regulations_oplog (full_temporary_stop_regulation_role,
-            full_temporary_stop_regulation_id, published_date, officialjournal_number,
-            officialjournal_page,
-            validity_start_date, validity_end_date, effective_enddate,
-            complete_abrogation_regulation_role, complete_abrogation_regulation_id,
-            explicit_abrogation_regulation_role, explicit_abrogation_regulation_id,
-            replacement_indicator, information_text, approved_flag,
-            operation, operation_date)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-            (full_temporary_stop_regulation_role,
-            full_temporary_stop_regulation_id, published_date, officialjournal_number,
-            officialjournal_page,
-            validity_start_date, validity_end_date, effective_enddate,
-            complete_abrogation_regulation_role, complete_abrogation_regulation_id,
-            explicit_abrogation_regulation_role, explicit_abrogation_regulation_id,
-            replacement_indicator, information_text, approved_flag,
-            operation, operation_date))
-            g.app.conn.commit()
-        except:
-            g.data_file.record_business_rule_violation("DB", "DB failure", operation, transaction_id, message_id, record_code, sub_record_code, full_temporary_stop_regulation_id)
-        cur.close()

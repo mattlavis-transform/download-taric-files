@@ -14,19 +14,3 @@ class GoodsNomenclatureOrigin(object):
         # Set operation types and print load message to screen
         operation = g.app.get_loading_message(update_type, "goods nomenclature origin", goods_nomenclature_sid)
 
-        # Load data
-        cur = g.app.conn.cursor()
-        try:
-            cur.execute("""INSERT INTO goods_nomenclature_origins_oplog (goods_nomenclature_sid,
-            derived_goods_nomenclature_item_id, derived_productline_suffix,
-            goods_nomenclature_item_id, productline_suffix,
-            operation, operation_date)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-            (goods_nomenclature_sid,
-            derived_goods_nomenclature_item_id, derived_productline_suffix,
-            goods_nomenclature_item_id, productline_suffix,
-            operation, operation_date))
-            g.app.conn.commit()
-        except:
-            g.data_file.record_business_rule_violation("DB", "DB failure", operation, transaction_id, message_id, record_code, sub_record_code, goods_nomenclature_item_id)
-        cur.close()

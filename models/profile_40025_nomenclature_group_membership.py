@@ -16,17 +16,3 @@ class NomenclatureGroupMembership(object):
         # Set operation types and print load message to screen
         operation = g.app.get_loading_message(update_type, "nomenclature group membership on group", goods_nomenclature_group_id)
 
-        # Load data
-        cur = g.app.conn.cursor()
-        try:
-            cur.execute("""INSERT INTO nomenclature_group_memberships_oplog (goods_nomenclature_sid,
-            goods_nomenclature_group_type, goods_nomenclature_group_id, validity_start_date, validity_end_date,
-            goods_nomenclature_item_id, productline_suffix, operation, operation_date)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-            (goods_nomenclature_sid,
-            goods_nomenclature_group_type, goods_nomenclature_group_id, validity_start_date, validity_end_date,
-            goods_nomenclature_item_id, productline_suffix, operation, operation_date))
-            g.app.conn.commit()
-        except:
-            g.data_file.record_business_rule_violation("DB", "DB failure", operation, transaction_id, message_id, record_code, sub_record_code, goods_nomenclature_group_id)
-        cur.close()

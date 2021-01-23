@@ -16,17 +16,3 @@ class FootnoteAssociationAdditionalCode(object):
         # Set operation types and print load message to screen
         operation = g.app.get_loading_message(update_type, "footnote association on additional code", additional_code_sid)
 
-        # Load data
-        cur = g.app.conn.cursor()
-        try:
-            cur.execute("""INSERT INTO footnote_association_additional_codes_oplog (additional_code_sid,
-            footnote_type_id, footnote_id, validity_start_date, validity_end_date, additional_code_type_id, additional_code,
-            operation, operation_date)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-            (additional_code_sid,
-            footnote_type_id, footnote_id, validity_start_date, validity_end_date, additional_code_type_id, additional_code,
-            operation, operation_date))
-            g.app.conn.commit()
-        except:
-            g.data_file.record_business_rule_violation("DB", "DB failure", operation, transaction_id, message_id, record_code, sub_record_code, additional_code_sid)
-        cur.close()

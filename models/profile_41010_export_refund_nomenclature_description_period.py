@@ -16,17 +16,3 @@ class ExportRefundNomenclatureDescriptionPeriod(object):
         # Set operation types and print load message to screen
         operation = g.app.get_loading_message(update_type, "export refund nomenclature description period", export_refund_nomenclature_description_period_sid)
 
-        # Load data
-        cur = g.app.conn.cursor()
-        try:
-            cur.execute("""INSERT INTO export_refund_nomenclature_description_periods_oplog (export_refund_nomenclature_description_period_sid,
-            export_refund_nomenclature_sid, validity_start_date, goods_nomenclature_item_id,
-            additional_code_type, export_refund_code, productline_suffix, operation, operation_date)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-            (export_refund_nomenclature_description_period_sid,
-            export_refund_nomenclature_sid, validity_start_date, goods_nomenclature_item_id,
-            additional_code_type, export_refund_code, productline_suffix, operation, operation_date))
-            g.app.conn.commit()
-        except:
-            g.data_file.record_business_rule_violation("DB", "DB failure", operation, transaction_id, message_id, record_code, sub_record_code, export_refund_nomenclature_description_period_sid)
-        cur.close()

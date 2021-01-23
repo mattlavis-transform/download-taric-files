@@ -15,17 +15,3 @@ class MeursingSubheading(object):
         # Set operation types and print load message to screen
         operation = g.app.get_loading_message(update_type, "Meursing subheading", subheading_sequence_number)
 
-        # Load data
-        cur = g.app.conn.cursor()
-        try:
-            cur.execute("""INSERT INTO meursing_subheadings_oplog (meursing_table_plan_id,
-            meursing_heading_number, row_column_code, subheading_sequence_number,
-            validity_start_date, validity_end_date, operation, operation_date)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
-            (meursing_table_plan_id,
-            meursing_heading_number, row_column_code, subheading_sequence_number,
-            validity_start_date, validity_end_date, operation, operation_date))
-            g.app.conn.commit()
-        except:
-            g.data_file.record_business_rule_violation("DB", "DB failure", operation, transaction_id, message_id, record_code, sub_record_code, subheading_sequence_number)
-        cur.close()

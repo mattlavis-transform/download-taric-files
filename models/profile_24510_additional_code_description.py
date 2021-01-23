@@ -16,16 +16,3 @@ class AdditionalCodeDescription(object):
         # Set operation types and print load message to screen
         operation = g.app.get_loading_message(update_type, "additional code description", additional_code_type_id + additional_code + " (" + description + ")")
 
-        # Load data
-        cur = g.app.conn.cursor()
-        try:
-            cur.execute("""INSERT INTO additional_code_descriptions_oplog (additional_code_description_period_sid,
-            additional_code_sid, additional_code_type_id,
-            additional_code, language_id, description, operation, operation_date)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
-            (additional_code_description_period_sid, additional_code_sid, additional_code_type_id,
-            additional_code, language_id, description, operation, operation_date))
-            g.app.conn.commit()
-        except:
-            g.data_file.record_business_rule_violation("DB", "DB failure", operation, transaction_id, message_id, record_code, sub_record_code, code)
-        cur.close()

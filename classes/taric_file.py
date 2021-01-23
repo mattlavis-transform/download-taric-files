@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 import sys
 import os
+import json
 
 from classes.bcolors import bcolors
 import classes.globals as g
@@ -103,28 +104,26 @@ from models.profile_43020_footnote_association_measure import FootnoteAssociatio
 from models.profile_43025_measure_partial_temporary_stop import MeasurePartialTemporaryStop
 from models.profile_44000_monetary_exchange_period import MonetaryExchangePeriod
 from models.profile_44005_monetary_exchange_rate import MonetaryExchangeRate
+from classes.excel import Excel
 
 
 class TaricFile(object):
-    def __init__(self, taric_filename):
-        self.business_rule_violations = []
-        self.taric_filename = taric_filename
-        sys.exit()
+    def __init__(self, path, filename):
+        self.path = path
+        self.filename = filename
+        self.taric_filename = os.path.join(self.path, self.filename)
+
+        # Used for commodities
+        self.goods_nomenclatures = []
+        self.goods_nomenclature_description_periods = []
+        self.goods_nomenclature_descriptions = []
+        self.goods_nomenclature_indents = []
+        self.measures = []
+        self.certificates = []
+        self.footnotes = []
+        self.additional_codes = []
 
     def parse_xml(self):
-        self.duty_measure_list = []
-
-        g.app.print_to_terminal(
-            "Preparing to import file " + self.taric_filename + " into database " + g.app.DBASE, False)
-
-        if g.app.prompt:
-            ret = g.app.yes_or_no("Do you want to continue?")
-            if not (ret) or ret in ("n", "N", "No"):
-                sys.exit()
-
-        g.app.load_data_sets_for_validation()
-        self.check_already_loaded()
-        g.app.create_log_file(self.taric_filename)
 
         # Load file
         ET.register_namespace('oub', 'urn:publicid:-:DGTAXUD:TARIC:MESSAGE:1.0')
@@ -132,8 +131,7 @@ class TaricFile(object):
         try:
             tree = ET.parse(self.taric_filename)
         except:
-            print(
-                "The selected file could not be found or is not a valid, well-formed XML file")
+            print("The selected file could not be found or is not a valid, well-formed XML file")
             sys.exit(0)
         root = tree.getroot()
 
@@ -608,132 +606,153 @@ class TaricFile(object):
                 # 40000	GOODS NOMENCLATURE
                 if record_code == "400" and sub_record_code == "00":
                     o = GoodsNomenclature()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
+                    self.goods_nomenclatures.append(o)
 
                 # 40005	GOODS NOMENCLATURE INDENT
                 if record_code == "400" and sub_record_code == "05":
                     o = GoodsNomenclatureIndent()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
+                    self.goods_nomenclature_indents.append(o)
 
                 # 40010	GOODS NOMENCLATURE DESCRIPTION PERIOD
                 if record_code == "400" and sub_record_code == "10":
                     o = GoodsNomenclatureDescriptionPeriod()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
+                    self.goods_nomenclature_description_periods.append(o)
 
                 # 40015	GOODS NOMENCLATURE DESCRIPTION
                 if record_code == "400" and sub_record_code == "15":
                     o = GoodsNomenclatureDescription()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
+                    self.goods_nomenclature_descriptions.append(o)
 
                 # 40020	FOOTNOTE ASSOCIATION GOODS NOMENCLATURE
                 if record_code == "400" and sub_record_code == "20":
                     o = FootnoteAssociationGoodsNomenclature()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 40025 NOMENCLATURE GROUP MEMBERSHIP
                 if record_code == "400" and sub_record_code == "25":
                     o = NomenclatureGroupMembership()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 40035	GOODS NOMENCLATURE ORIGIN
                 if record_code == "400" and sub_record_code == "35":
                     o = GoodsNomenclatureOrigin()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 40040	GOODS NOMENCLATURE SUCCESSOR
                 if record_code == "400" and sub_record_code == "40":
                     o = GoodsNomenclatureSuccessor()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 41000	EXPORT REFUND NOMENCLATURE
                 if record_code == "410" and sub_record_code == "00":
                     o = ExportRefundNomenclature()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 41000	EXPORT REFUND NOMENCLATURE INDENT
                 if record_code == "410" and sub_record_code == "05":
                     o = ExportRefundNomenclatureIndent()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 41000	EXPORT REFUND NOMENCLATURE DESCRIPTION PERIOD
                 if record_code == "410" and sub_record_code == "10":
                     o = ExportRefundNomenclatureDescriptionPeriod()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 41000	EXPORT REFUND NOMENCLATURE DESCRIPTION
                 if record_code == "410" and sub_record_code == "15":
                     o = ExportRefundNomenclatureDescription()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 41000	FOOTNOTE ASSOCIATION - ERN
                 if record_code == "410" and sub_record_code == "20":
                     o = FootnoteAssociationErn()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 43000	MEASURE
                 if record_code == "430" and sub_record_code == "00":
                     o = Measure()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 43005	MEASURE COMPONENT
                 if record_code == "430" and sub_record_code == "05":
                     o = MeasureComponent()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 43010	MEASURE CONDITION
                 if record_code == "430" and sub_record_code == "10":
                     o = MeasureCondition()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 43011	MEASURE CONDITION COMPONENT
                 if record_code == "430" and sub_record_code == "11":
                     o = MeasureConditionComponent()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 43015	MEASURE EXCLUDED GEOGRAPHICAL AREA
                 if record_code == "430" and sub_record_code == "15":
                     o = MeasureExcludedGeographicalArea()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 43020	FOOTNOTE ASSOCIATION - MEASURE
                 if record_code == "430" and sub_record_code == "20":
                     o = FootnoteAssociationMeasure()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 43025	MEASURE PARTIAL TEMPORARY STOP
                 if record_code == "430" and sub_record_code == "25":
                     o = MeasurePartialTemporaryStop()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 44000	MONETARY EXCHANGE PERIOD
                 if record_code == "440" and sub_record_code == "00":
                     o = MonetaryExchangePeriod()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
                 # 44005	MONETARY EXCHANGE RATE
                 if record_code == "440" and sub_record_code == "05":
                     o = MonetaryExchangeRate()
-                    o.parse_node(self, update_type, message, transaction_id,
-                                 message_id, record_code, sub_record_code)
+                    o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
+        self.parse_goods_nomenclatures()
+
+    def parse_goods_nomenclatures(self):
+        if self.goods_nomenclatures:
+            for goods_nomenclature in self.goods_nomenclatures:
+                for goods_nomenclature_indent in self.goods_nomenclature_indents:
+                    if goods_nomenclature_indent.goods_nomenclature_sid == goods_nomenclature.goods_nomenclature_sid:
+                        goods_nomenclature.goods_nomenclature_indents.append(goods_nomenclature_indent)
+                
+                for goods_nomenclature_description_period in self.goods_nomenclature_description_periods:
+                    if goods_nomenclature_description_period.goods_nomenclature_sid == goods_nomenclature.goods_nomenclature_sid:
+                        goods_nomenclature.goods_nomenclature_description_periods.append(goods_nomenclature_description_period)
+                
+                for goods_nomenclature_description in self.goods_nomenclature_descriptions:
+                    if goods_nomenclature_description.goods_nomenclature_sid == goods_nomenclature.goods_nomenclature_sid:
+                        goods_nomenclature.goods_nomenclature_descriptions.append(goods_nomenclature_description)
+                
+                # jsonStr = json.dumps(goods_nomenclature.__dict__)
+                # print(jsonStr)
+                a = 1
+                
+            # sys.exit()
+        pass
+            
+    def generate_xml(self):
+        g.excel = Excel()
+        g.excel.create_excel(self.path, self.filename)
+        g.excel.close_excel()
+        self.create_goods_nomenclatures_sheet()
+        
+    def create_goods_nomenclatures_sheet(self):
+        # Write Excel column headers
+        worksheet = g.excel.workbook.add_worksheet("Commodities")
+        data = ('Action', 'SID', 'Commodity code', 'Product line suffix', 'Statistical indicator', 'Start date', 'End date', 'Description')
+        worksheet.write_row('A1', data, g.excel.format_bold)
+        worksheet.set_column(0, 0, 30)
+        worksheet.set_column(1, 6, 20)
+        worksheet.set_column(7, 7, 50)
+        worksheet.freeze_panes(1, 0)

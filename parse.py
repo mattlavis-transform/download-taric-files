@@ -16,3 +16,4 @@ if __name__ == "__main__":
         year = now.year
 
     g.app.parse(year, file_from, file_to)
+    g.app.create_commodity_extract()

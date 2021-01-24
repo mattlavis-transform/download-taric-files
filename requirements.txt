@@ -2,6 +2,7 @@ autopep8==1.5.4
 certifi==2020.11.8
 chardet==3.0.4
 idna==2.10
+psycopg2==2.8.6
 pycodestyle==2.6.0
 python-dotenv==0.15.0
 requests==2.25.0

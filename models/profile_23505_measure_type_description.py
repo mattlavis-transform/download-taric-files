@@ -9,8 +9,6 @@ class MeasureTypeDescription(object):
         language_id = g.app.get_value(message, ".//oub:language.id", True)
         description = g.app.get_value(message, ".//oub:description", True)
 
-        measure_types = g.app.get_measure_types()
-
         # Set operation types and print load message to screen
         operation = g.app.get_loading_message(update_type, "measure type description", measure_type_id)
 

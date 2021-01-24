@@ -18,8 +18,6 @@ class GeographicalArea(object):
         else:
             validity_end_date2 = validity_end_date
 
-        geographical_area_groups = g.app.get_geographical_area_groups()
-
         # Set operation types and print load message to screen
         operation = g.app.get_loading_message(update_type, "geographical area", geographical_area_id)
 

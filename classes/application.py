@@ -8,6 +8,8 @@ from requests.auth import HTTPBasicAuth
 from dotenv import load_dotenv
 import xml.dom.minidom
 
+from classes.database import Database
+from classes.classification import Classification
 from classes.taric_file import TaricFile
 
 
@@ -155,13 +157,13 @@ class application(object):
     def get_loading_message(self, update_type, object_description, value):
         operation = ""
         if update_type == "1":  # UPDATE
-            operation = "U"
+            operation = "Update "
             self.doprint("Updating " + object_description + " " + str(value))
         elif update_type == "2":  # DELETE
-            operation = "D"
+            operation = "Delete "
             self.doprint("Deleting " + object_description + " " + str(value))
         elif update_type == "3":  # INSERT
-            operation = "C"
+            operation = "Create "
             self.doprint("Creating " + object_description + " " + str(value))
 
         return operation
@@ -173,3 +175,49 @@ class application(object):
         else:
             return True
 
+    def format_date(self, d):
+        if d is None:
+            return ""
+        elif d == "":
+            return ""
+        else:
+            return d[8:10] + "/" + d[5:7] + "/" + d[0:4]
+        
+    def create_commodity_extract(self):
+        d = datetime.now()
+        d2 = d.strftime('%Y-%m-%d')
+        self.classifications = []
+        for i in range(0, 10):
+            chapter = str(i) + "%"
+            sql = "select * from utils.goods_nomenclature_export_new('" + chapter + "', '" + d2 + "') order by 2, 3"
+            print("Getting complete commodity code list for codes beginning with " + str(i))
+            d = Database()
+            rows = d.run_query(sql)
+            for row in rows:
+                self.validity_start_date = str(row[0])
+                classification = Classification(
+                    row[0],
+                    row[1],
+                    row[2],
+                    row[3],
+                    row[4],
+                    row[5],
+                    row[6],
+                    row[7],
+                    row[8],
+                    row[9],
+                    row[10]
+                )
+                self.classifications.append(classification)
+                
+        filename = os.getcwd()
+        filename = os.path.join(filename, "resources")
+        filename = os.path.join(filename, "csv")
+        filename = os.path.join(filename, "eu_commodities_" + d2 + ".csv")
+
+        f = open(filename, "w+")
+        field_names = '"SID","Commodity code","Product line suffix","Start date","End date","Indentation","Leaf,"Description"\n'
+        f.write(field_names)
+        for item in self.classifications:
+            f.write(item.extract_row())
+        f.close()

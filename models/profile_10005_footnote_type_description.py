@@ -9,8 +9,6 @@ class FootnoteTypeDescription(object):
         language_id = g.app.get_value(message, ".//oub:language.id", True)
         description = g.app.get_value(message, ".//oub:description", True)
 
-        footnote_type_descriptions = g.app.get_footnote_type_descriptions()
-
         # Set operation types and print load message to screen
         operation = g.app.get_loading_message(update_type, "footnote type description", footnote_type_id + " (" + description + ")")
 

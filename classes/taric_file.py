@@ -112,6 +112,7 @@ class TaricFile(object):
         self.path = path
         self.filename = filename
         self.taric_filename = os.path.join(self.path, self.filename)
+        self.create_excel = False
 
         # Used for commodities
         self.goods_nomenclatures = []
@@ -717,42 +718,86 @@ class TaricFile(object):
                     o = MonetaryExchangeRate()
                     o.parse_node(self, update_type, message, transaction_id, message_id, record_code, sub_record_code)
 
+        self.generate_xml()
         self.parse_goods_nomenclatures()
+        self.parse_measures()
+        self.close_xml()
 
     def parse_goods_nomenclatures(self):
         if self.goods_nomenclatures:
+            worksheet = g.excel.workbook.add_worksheet("Commodities")
+            data = ('Action', 'SID', 'Commodity code', 'Product line suffix', 'Statistical indicator', 'Start date', 'End date', 'Description')
+            worksheet.write_row('A1', data, g.excel.format_bold)
+            worksheet.set_column(0, 0, 30)
+            worksheet.set_column(1, 6, 20)
+            worksheet.set_column(7, 7, 50)
+            worksheet.freeze_panes(1, 0)
+
+
+            # Write the Excel
+            row_count = 1
+
             for goods_nomenclature in self.goods_nomenclatures:
                 for goods_nomenclature_indent in self.goods_nomenclature_indents:
                     if goods_nomenclature_indent.goods_nomenclature_sid == goods_nomenclature.goods_nomenclature_sid:
+                        goods_nomenclature_indent.matched = True
                         goods_nomenclature.goods_nomenclature_indents.append(goods_nomenclature_indent)
                 
                 for goods_nomenclature_description_period in self.goods_nomenclature_description_periods:
                     if goods_nomenclature_description_period.goods_nomenclature_sid == goods_nomenclature.goods_nomenclature_sid:
+                        goods_nomenclature_description_period.matched = True
                         goods_nomenclature.goods_nomenclature_description_periods.append(goods_nomenclature_description_period)
                 
                 for goods_nomenclature_description in self.goods_nomenclature_descriptions:
                     if goods_nomenclature_description.goods_nomenclature_sid == goods_nomenclature.goods_nomenclature_sid:
+                        goods_nomenclature_description.matched = True
                         goods_nomenclature.goods_nomenclature_descriptions.append(goods_nomenclature_description)
                 
-                # jsonStr = json.dumps(goods_nomenclature.__dict__)
-                # print(jsonStr)
-                a = 1
+            for goods_nomenclature_description in self.goods_nomenclature_descriptions:
+                for goods_nomenclature_description_period in self.goods_nomenclature_description_periods:
+                    if goods_nomenclature_description.goods_nomenclature_sid == goods_nomenclature_description_period.goods_nomenclature_sid:
+                        goods_nomenclature_description.goods_nomenclature_description_periods.append(goods_nomenclature_description_period)
+
+            for goods_nomenclature in self.goods_nomenclatures:
+                if goods_nomenclature.validity_end_date is not None or goods_nomenclature.goods_nomenclature_descriptions:
+                    self.create_excel = True
+                    worksheet.write(row_count, 0, goods_nomenclature.operation + " commodity", g.excel.format_wrap)
+                    worksheet.write(row_count, 1, goods_nomenclature.goods_nomenclature_sid, g.excel.format_wrap)
+                    worksheet.write(row_count, 2, goods_nomenclature.goods_nomenclature_item_id, g.excel.format_wrap)
+                    worksheet.write(row_count, 3, goods_nomenclature.productline_suffix, g.excel.format_wrap)
+                    worksheet.write(row_count, 4, goods_nomenclature.statistical_indicator, g.excel.format_wrap)
+                    worksheet.write(row_count, 5, g.app.format_date(goods_nomenclature.validity_start_date), g.excel.format_wrap)
+                    worksheet.write(row_count, 6, g.app.format_date(goods_nomenclature.validity_end_date), g.excel.format_wrap)
+                    if goods_nomenclature.goods_nomenclature_descriptions:
+                        worksheet.write(row_count, 7, goods_nomenclature.goods_nomenclature_descriptions[0].description, g.excel.format_wrap)
+                    row_count += 1
                 
-            # sys.exit()
+            for goods_nomenclature_description in self.goods_nomenclature_descriptions:
+                if goods_nomenclature_description.matched == False:
+                    self.create_excel = True
+                    worksheet.write(row_count, 0, goods_nomenclature_description.operation + " commodity description", g.excel.format_wrap)
+                    worksheet.write(row_count, 1, goods_nomenclature_description.goods_nomenclature_sid, g.excel.format_wrap)
+                    worksheet.write(row_count, 2, goods_nomenclature_description.goods_nomenclature_item_id, g.excel.format_wrap)
+                    worksheet.write(row_count, 3, goods_nomenclature_description.productline_suffix, g.excel.format_wrap)
+                    if len(goods_nomenclature_description.goods_nomenclature_description_periods) > 0:
+                        worksheet.write(row_count, 5, g.app.format_date(goods_nomenclature_description.goods_nomenclature_description_periods[0].validity_start_date), g.excel.format_wrap)
+                    else:
+                        goods_nomenclature_description.lookup_start_date()
+                        worksheet.write(row_count, 5, g.app.format_date(goods_nomenclature_description.validity_start_date), g.excel.format_wrap)
+                    worksheet.write(row_count, 7, goods_nomenclature_description.description, g.excel.format_wrap)
+                    
+
+    def parse_measures(self):
+        
         pass
             
     def generate_xml(self):
         g.excel = Excel()
         g.excel.create_excel(self.path, self.filename)
+
+    def close_xml(self):
         g.excel.close_excel()
-        self.create_goods_nomenclatures_sheet()
-        
-    def create_goods_nomenclatures_sheet(self):
-        # Write Excel column headers
-        worksheet = g.excel.workbook.add_worksheet("Commodities")
-        data = ('Action', 'SID', 'Commodity code', 'Product line suffix', 'Statistical indicator', 'Start date', 'End date', 'Description')
-        worksheet.write_row('A1', data, g.excel.format_bold)
-        worksheet.set_column(0, 0, 30)
-        worksheet.set_column(1, 6, 20)
-        worksheet.set_column(7, 7, 50)
-        worksheet.freeze_panes(1, 0)
+        if self.create_excel == False:
+            from_name = g.excel.excel_filename
+            to_name = g.excel.excel_filename.replace("TGB", "x_TGB")
+            os.rename(from_name, to_name) 

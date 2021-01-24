@@ -4,6 +4,7 @@ import classes.globals as g
 class GoodsNomenclatureDescriptionPeriod(object):
     def parse_node(self, app, update_type, message, transaction_id, message_id, record_code, sub_record_code):
         g.app.message_count += 1
+        self.matched = False
         self.operation_date = g.app.get_timestamp()
         self.goods_nomenclature_description_period_sid = g.app.get_number_value(message, ".//oub:goods.nomenclature.description.period.sid", True)
         self.goods_nomenclature_sid = g.app.get_number_value(message, ".//oub:goods.nomenclature.sid", True)

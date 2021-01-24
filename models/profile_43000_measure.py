@@ -1,6 +1,5 @@
 import sys
 import classes.globals as g
-from classes.classification import classification
 from datetime import datetime
 
 

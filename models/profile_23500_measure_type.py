@@ -16,8 +16,6 @@ class MeasureType(object):
         measure_explosion_level = g.app.get_value(message, ".//oub:measure.explosion.level", True)
         measure_type_series_id = g.app.get_value(message, ".//oub:measure.type.series.id", True)
 
-        measure_types = g.app.get_measure_types()
-        measure_type_series = g.app.get_measure_type_series()
         if not(measure_type_id.isnumeric()):
             national = True
         else:

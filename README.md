@@ -27,5 +27,5 @@
 ### To download Taric files:
 `python3 download.py`
 
-### To retrieve usefl information from Taric files for validation purposes:
+### To retrieve useful information from Taric files for validation purposes:
 `python3 parse.py`

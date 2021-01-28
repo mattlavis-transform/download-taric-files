@@ -5,7 +5,7 @@ import classes.globals as g
 
 if __name__ == "__main__":
     file_from = 1
-    file_to = 252
+    file_to = 25 # 252
 
     if len(sys.argv) > 1:
         year = sys.argv[1]

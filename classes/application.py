@@ -7,6 +7,7 @@ import sys
 from requests.auth import HTTPBasicAuth
 from dotenv import load_dotenv
 import xml.dom.minidom
+from shutil import copyfile
 
 from classes.database import Database
 from classes.classification import Classification
@@ -22,6 +23,7 @@ class application(object):
         self.ROOT = os.getenv('ROOT')
         self.TARIFF_SYNC_USERNAME = os.getenv('TARIFF_SYNC_USERNAME')
         self.TARIFF_SYNC_PASSWORD = os.getenv('TARIFF_SYNC_PASSWORD')
+        self.IMPORT_FOLDER = os.getenv('IMPORT_FOLDER')
         self.show_progress = self.num_to_bool(os.getenv('SHOW_PROGRESS'))
         self.create_folders()
 
@@ -42,7 +44,7 @@ class application(object):
                 year_folder = os.path.join(self.sub_folder, str(i))
                 if not os.path.exists(year_folder):
                     os.mkdir(year_folder)
-                    
+
         self.xml_folder = os.path.join(self.resources_folder, "xml")
         self.xlsx_folder = os.path.join(self.resources_folder, "xlsx")
 
@@ -63,6 +65,11 @@ class application(object):
                     f.write(dom.toprettyxml())
                     f.close()
 
+                # Copy to the import folder for running the import
+                dest = os.path.join(self.IMPORT_FOLDER, "EU")
+                dest = os.path.join(dest, filename)
+                copyfile(path, dest)
+
     def parse(self, year, from_file, to_file):
         for iterator in range(to_file + 1, from_file, -1):
             increment = str(iterator).zfill(3)
@@ -73,7 +80,7 @@ class application(object):
                 taric_file = TaricFile(my_path, filename)
                 taric_file.parse_xml()
                 taric_file.generate_xml()
-                
+
     def get_timestamp(self):
         ts = datetime.now()
         ts_string = datetime.strftime(ts, "%Y%m%dT%H%M%S")
@@ -182,8 +189,8 @@ class application(object):
             return ""
         else:
             return d[8:10] + "/" + d[5:7] + "/" + d[0:4]
-        
-    def create_commodity_extract(self):
+
+    def create_commodity_extract(self, which="eu"):
         d = datetime.now()
         d2 = d.strftime('%Y-%m-%d')
         self.classifications = []
@@ -209,14 +216,14 @@ class application(object):
                     row[10]
                 )
                 self.classifications.append(classification)
-                
+
         filename = os.getcwd()
         filename = os.path.join(filename, "resources")
         filename = os.path.join(filename, "csv")
-        filename = os.path.join(filename, "eu_commodities_" + d2 + ".csv")
+        filename = os.path.join(filename, which + "_commodities_" + d2 + ".csv")
 
         f = open(filename, "w+")
-        field_names = '"SID","Commodity code","Product line suffix","Start date","End date","Indentation","Leaf,"Description"\n'
+        field_names = '"SID","Commodity code","Product line suffix","Start date","End date","Indentation","Leaf","Description"\n'
         f.write(field_names)
         for item in self.classifications:
             f.write(item.extract_row())

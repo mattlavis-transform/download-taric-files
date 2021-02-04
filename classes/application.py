@@ -191,6 +191,7 @@ class application(object):
             return d[8:10] + "/" + d[5:7] + "/" + d[0:4]
 
     def create_commodity_extract(self, which="eu"):
+        print("Creating commodity code extract")
         d = datetime.now()
         d2 = d.strftime('%Y-%m-%d')
         self.classifications = []
@@ -223,7 +224,7 @@ class application(object):
         filename = os.path.join(filename, which + "_commodities_" + d2 + ".csv")
 
         f = open(filename, "w+")
-        field_names = '"SID","Commodity code","Product line suffix","Start date","End date","Indentation","Leaf","Description"\n'
+        field_names = '"SID","Commodity code","Product line suffix","Start date","End date","Indentation","End line","Description"\n'
         f.write(field_names)
         for item in self.classifications:
             f.write(item.extract_row())

@@ -11,7 +11,7 @@ class Database:
 
     def __init__(self):
         load_dotenv('.env')
-        self.database_url = os.getenv('DATABASE_UK')
+        self.database_url = os.getenv('DATABASE_EU')
         self.conn = None
 
     def open_connection(self):

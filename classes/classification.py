@@ -16,6 +16,8 @@ class Classification(object):
         self.description = description
         self.chapter = chapter
         self.node = node
+        if self.goods_nomenclature_item_id == "7606122090":
+            a = 1
         if self.validity_end_date is None:
             self.validity_end_date = ""
         self.format_description()

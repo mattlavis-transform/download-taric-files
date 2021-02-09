@@ -1,13 +1,13 @@
-import requests
 from datetime import timedelta
 from datetime import datetime
 import os
 from os import system, name, path
 import sys
-from requests.auth import HTTPBasicAuth
 from dotenv import load_dotenv
 import xml.dom.minidom
 from shutil import copyfile
+import requests
+from requests.auth import HTTPBasicAuth
 
 from classes.database import Database
 from classes.classification import Classification
@@ -190,11 +190,16 @@ class application(object):
         else:
             return d[8:10] + "/" + d[5:7] + "/" + d[0:4]
 
-    def create_commodity_extract(self, which="eu"):
+    def create_commodity_extract(self, which="eu", date_arg=""):
         print("Creating commodity code extract")
-        d = datetime.now()
-        d2 = d.strftime('%Y-%m-%d')
+        if date_arg == "":
+            d = datetime.now()
+            d2 = d.strftime('%Y-%m-%d')
+        else:
+            d2 = date_arg
+            
         self.classifications = []
+        # for i in range(7, 8):
         for i in range(0, 10):
             chapter = str(i) + "%"
             sql = "select * from utils.goods_nomenclature_export_new('" + chapter + "', '" + d2 + "') order by 2, 3"
@@ -216,7 +221,15 @@ class application(object):
                     row[9],
                     row[10]
                 )
-                self.classifications.append(classification)
+                validity_end_date = row[4]
+                do_append = True
+                if validity_end_date is not None:
+                    today = datetime.now()
+                    if validity_end_date < today:
+                        do_append = False
+
+                if do_append:
+                    self.classifications.append(classification)
 
         filename = os.getcwd()
         filename = os.path.join(filename, "resources")

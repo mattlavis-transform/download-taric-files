@@ -10,8 +10,8 @@ def parse(text):
         return None # or: raise
     
 diff = compare(
-    load_csv(open("resources/csv/uk_commodities_2021-02-01.csv"), key="SID"),
-    load_csv(open("resources/csv/eu_commodities_2021-02-01.csv"), key="SID")
+    load_csv(open("resources/csv/uk_commodities_2021-02-16.csv"), key="SID"),
+    load_csv(open("resources/csv/eu_commodities_2021-02-16.csv"), key="SID")
 )
 # print(diff)
 diff_str = str(diff)

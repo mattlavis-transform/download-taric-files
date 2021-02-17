@@ -33,3 +33,5 @@
 ### To build an updated code tree:
 `python3 codes.py`
 - Parameters = date and scope
+- e.g. python3 codes.py 2021-02-16 uk
+- or   python3 codes.py 2021-02-16 eu

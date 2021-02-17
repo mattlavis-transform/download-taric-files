@@ -9,9 +9,13 @@ from dotenv import load_dotenv
 class Database:
     """PostgreSQL Database class."""
 
-    def __init__(self):
+    def __init__(self, which = "eu"):
         load_dotenv('.env')
-        self.database_url = os.getenv('DATABASE_EU')
+        if which == "eu":
+            self.database_url = os.getenv('DATABASE_EU')
+        else:
+            self.database_url = os.getenv('DATABASE_UK')
+        
         self.conn = None
 
     def open_connection(self):

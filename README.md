@@ -29,3 +29,7 @@
 
 ### To retrieve useful information from Taric files for validation purposes:
 `python3 parse.py`
+
+### To build an updated code tree:
+`python3 codes.py`
+- Parameters = date and scope

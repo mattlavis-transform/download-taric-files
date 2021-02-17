@@ -11,4 +11,10 @@ if __name__ == "__main__":
         d = datetime.now()
         d2 = d.strftime('%Y-%m-%d')
 
-    g.app.create_commodity_extract("eu", d2)
+    if len(sys.argv) > 2:
+        scope = sys.argv[2]
+
+    else:
+        scope = "eu"
+
+    g.app.create_commodity_extract(scope, d2)

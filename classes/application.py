@@ -191,6 +191,8 @@ class application(object):
             return d[8:10] + "/" + d[5:7] + "/" + d[0:4]
 
     def create_commodity_extract(self, which="eu", date_arg=""):
+        if which == "xi":
+            which = "eu"
         print("Creating commodity code extract")
         if date_arg == "":
             d = datetime.now()
@@ -204,7 +206,7 @@ class application(object):
             chapter = str(i) + "%"
             sql = "select * from utils.goods_nomenclature_export_new('" + chapter + "', '" + d2 + "') order by 2, 3"
             print("Getting complete commodity code list for codes beginning with " + str(i))
-            d = Database()
+            d = Database(which)
             rows = d.run_query(sql)
             for row in rows:
                 self.validity_start_date = str(row[0])

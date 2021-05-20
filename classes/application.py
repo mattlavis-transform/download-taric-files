@@ -1,6 +1,7 @@
 from datetime import timedelta
 from datetime import datetime
 import os
+import json
 from os import system, name, path
 import sys
 from dotenv import load_dotenv
@@ -199,7 +200,7 @@ class application(object):
             d2 = d.strftime('%Y-%m-%d')
         else:
             d2 = date_arg
-            
+
         self.classifications = []
         # for i in range(7, 8):
         for i in range(0, 10):
@@ -231,16 +232,59 @@ class application(object):
                         do_append = False
 
                 if do_append:
+                    if classification.leaf:
+                        cnt = len(self.classifications)
+                        current_indent = classification.number_indents
+                        for j in range(cnt - 1, -1, -1):
+                            c2 = self.classifications[j]
+                            if c2.number_indents < current_indent:
+                                classification.hierarchy.append(c2.description)
+                                current_indent = c2.number_indents
+                            if c2.number_indents == 0:
+                                classification.hierarchy.append(c2.description)
+                                break
+
+                        # classification.hierarchy = reversed(classification.hierarchy)
+                        a = 1
+
                     self.classifications.append(classification)
 
-        filename = os.getcwd()
-        filename = os.path.join(filename, "resources")
-        filename = os.path.join(filename, "csv")
-        filename = os.path.join(filename, which + "_commodities_" + d2 + ".csv")
+        # CSV filename
+        path = os.getcwd()
+        filename_csv = os.path.join(path, "resources")
+        filename_csv = os.path.join(filename_csv, "csv")
+        filename_csv = os.path.join(filename_csv, which + "_commodities_" + d2 + ".csv")
 
-        f = open(filename, "w+")
+        # JSON filename
+        filename_json = os.path.join(path, "resources")
+        filename_json = os.path.join(filename_json, "json")
+        filename_json = os.path.join(filename_json, which + "_commodities_" + d2 + ".json")
+
+        # Write the CSV and the JSON
+        f = open(filename_csv, "w+")
         field_names = '"SID","Commodity code","Product line suffix","Start date","End date","Indentation","End line","Description"\n'
         f.write(field_names)
+
+        json_obj = []
+
         for item in self.classifications:
             f.write(item.extract_row())
+
+            if item.leaf == 1:
+                del item.validity_start_date
+                del item.validity_end_date
+                del item.goods_nomenclature_sid
+                del item.productline_suffix
+                del item.number_indents
+                del item.significant_digits
+                del item.chapter
+                del item.node
+
+                json_obj.append(item.__dict__)
+                a = 1
+
         f.close()
+
+        # json_data = json.dumps(json_obj.__dict__, lambda o: o.__dict__, indent=4)
+        with open(filename_json, 'w') as f:
+            json.dump(json_obj, f, indent=4)

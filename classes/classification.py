@@ -20,15 +20,17 @@ class Classification(object):
             a = 1
         if self.validity_end_date is None:
             self.validity_end_date = ""
-        self.format_description()
+        self.format_description(add_dashes=False)
+        self.hierarchy = []
 
-    def format_description(self):
+    def format_description(self, add_dashes=False):
         if self.description is None:
-            print ("Blank description found on comm code " + self.goods_nomenclature_item_id)
+            print("Blank description found on comm code " + self.goods_nomenclature_item_id)
             self.description = ""
         self.description = self.description.replace("|", " ")
-        self.description = "- " * self.number_indents + self.description
-    
+        if add_dashes:
+            self.description = "- " * self.number_indents + self.description
+
     def extract_row(self):
         C = ','
         Q = '"'
@@ -44,3 +46,10 @@ class Classification(object):
         s += str(self.leaf) + C
         s += Q + self.description + Q + NL
         return s
+
+    def extract_json(self):
+        return (":sifjso")
+    
+    # def __iter__(self):
+    #     yield 'goods_nomenclature_item_id', self.goods_nomenclature_item_id
+        

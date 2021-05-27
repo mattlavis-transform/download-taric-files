@@ -48,6 +48,7 @@ class application(object):
 
         self.xml_folder = os.path.join(self.resources_folder, "xml")
         self.xlsx_folder = os.path.join(self.resources_folder, "xlsx")
+        self.quotas_folder = os.path.join(self.resources_folder, "quotas")
 
     def download(self, year, from_file, to_file):
         for iterator in range(to_file + 1, from_file, -1):

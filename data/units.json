@@ -1,0 +1,38 @@
+[
+    {
+        "unit": "DTN",
+        "friendly": "100 kg"
+    },
+    {
+        "unit": "TNE",
+        "friendly": "tonne"
+    },
+    {
+        "unit": "EUR",
+        "friendly": "€"
+    },
+    {
+        "unit": "HLT",
+        "friendly": "100 litre"
+    },
+    {
+        "unit": "LTR",
+        "friendly": "litre"
+    },
+    {
+        "unit": "KGM",
+        "friendly": "kilogramme"
+    },
+    {
+        "unit": "MIL",
+        "friendly": "thousand items"
+    },
+    {
+        "unit": "NAR",
+        "friendly": "unit"
+    },
+    {
+        "unit": "DAP",
+        "friendly": "decatonne, corrected according to polarisation"
+    } 
+]

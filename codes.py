@@ -15,6 +15,6 @@ if __name__ == "__main__":
         scope = sys.argv[2]
 
     else:
-        scope = "eu"
+        scope = "uk"
 
     g.app.create_commodity_extract(scope, d2)

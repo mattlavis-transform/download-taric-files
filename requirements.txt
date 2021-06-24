@@ -7,7 +7,7 @@ csv-diff==1.0
 dictdiffer==0.8.1
 idna==2.10
 macholib==1.14
-psycopg2==2.8.6
+psycopg2-binary==2.8.6
 pycodestyle==2.6.0
 pyinstaller==4.2
 pyinstaller-hooks-contrib==2020.11

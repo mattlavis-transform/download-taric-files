@@ -56,9 +56,9 @@ class application(object):
             filename = "TGB" + str(year)[-2:] + increment + ".xml"
             url = self.ROOT + filename
             my_path = os.path.join(self.xml_folder, str(year))
-            print(url)
             resp = requests.get(url, auth=HTTPBasicAuth(self.TARIFF_SYNC_USERNAME, self.TARIFF_SYNC_PASSWORD))
             if resp.status_code == 200:
+                print(url)
                 path = os.path.join(my_path, filename)
                 if not os.path.exists(path):
                     f = open(path, "w+")
